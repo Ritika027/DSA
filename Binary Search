@@ -1,27 +1,31 @@
-    #include <iostream>
-    using namespace std;
-    int main() {
-        int t;
-        cin >> t;
-        while (t--) {
-            string s;
-            cin >> s;
-            int count = 0;
-            int first_one = -1, last_one = -1;
-            for (int i = 0; i < s.length(); i++) {
-                if (s[i] == '1') {
-                    if (first_one == -1) {
-                        first_one = i;
-                    }
-                    last_one = i;
-                }
-            }
-            for (int i = first_one; i <= last_one; i++) {
-                if (s[i] == '0') {
-                    count++;
-                }
-            }
-            cout << count << endl;
-        }
-        return 0;
+#include <iostream>
+#include <string>
+using namespace std;
+int binarySearch(string arr[], int size, string target) {
+    int left = 0;
+    int right = size - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target)
+            return mid;
+        if (arr[mid] < target)
+            left = mid + 1;
+        else
+            right = mid - 1;
     }
+    return -1;
+}
+
+int main() {
+    string arr[] = {"abc", "klm", "pqr", "rst", "uvw"}; 
+    int size = sizeof(arr) / sizeof(arr[0]);
+    string target;
+    cin >> target;
+    int result = binarySearch(arr, size, target);
+    if (result != -1)
+        cout << "Element is present at index " << result << endl;
+    else
+        cout << "Element is not present in the array" << endl;
+    return 0;
+}
+
