@@ -1,0 +1,94 @@
+#include <iostream>
+#include <stack>
+#include <string>
+#include <algorithm>
+#include <cctype>
+#include<cmath>
+using namespace std;
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
+}
+int precedence(char c) {
+    if (c == '^')
+        return 3;
+    else if (c == '*' || c == '/')
+        return 2;
+    else if (c == '+' || c == '-')
+        return 1;
+    else
+        return -1;
+}
+string infixToPrefix(string infix) {
+    reverse(infix.begin(), infix.end());
+    for (int i = 0; i < infix.length(); i++) {
+        if (infix[i] == '(') {
+            infix[i] = ')';
+        } else if (infix[i] == ')') {
+            infix[i] = '(';
+        }
+    }
+    stack<char> st;
+    string prefix;
+
+    for (char c : infix) {
+        if (isalnum(c)) {
+            prefix += c;
+        } else if (c == '(') {
+            st.push(c);
+        } else if (c == ')') {
+            while (!st.empty() && st.top() != '(') {
+                prefix += st.top();
+                st.pop();
+            }
+            if (!st.empty()) {
+                st.pop();
+            }
+        } else if (isOperator(c)) {
+            while (!st.empty() && precedence(st.top()) > precedence(c)) {
+                prefix += st.top();
+                st.pop();
+            }
+            st.push(c);
+        }
+    }
+    while (!st.empty()) {
+        prefix += st.top();
+        st.pop();
+    }
+    reverse(prefix.begin(), prefix.end());
+    return prefix;
+}
+
+int evaluatePrefix(string prefix) {
+    stack<int> st;
+    for (int i = prefix.length() - 1; i >= 0; i--) {
+        if (isdigit(prefix[i])) {
+            st.push(prefix[i] - '0');
+        } else if (isOperator(prefix[i])) {
+            int op1 = st.top(); st.pop();
+            int op2 = st.top(); st.pop();
+            switch (prefix[i]) {
+                case '+': st.push(op1 + op2); break;
+                case '-': st.push(op1 - op2); break;
+                case '*': st.push(op1 * op2); break;
+                case '/': st.push(op1 / op2); break;
+                case '^': st.push(pow(op1, op2)); break;
+            }
+        }
+    }
+    return st.top();
+}
+
+int main() {
+    string infix;
+    cout << "Enter infix expression: ";
+    cin >> infix;
+
+    string prefix = infixToPrefix(infix);
+    cout << "Prefix expression: " << prefix << endl;
+
+    int result = evaluatePrefix(prefix);
+    cout << "Evaluation result: " << result << endl;
+
+    return 0;
+}
