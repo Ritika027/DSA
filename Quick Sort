@@ -1,27 +1,54 @@
 #include <iostream>
 using namespace std;
-int main() {
-    int t;
-    cin >> t;
-    while (t--) {
-        string s;
-        cin >> s;
-        int count = 0;
-        int first_one = -1, last_one = -1;
-        for (int i = 0; i < s.length(); i++) {
-            if (s[i] == '1') {
-                if (first_one == -1) {
-                    first_one = i;
-                }
-                last_one = i;
-            }
+struct Student {
+    string name;
+    int marks;
+};
+void swap(Student &a, Student &b) {
+    Student temp = a;
+    a = b;
+    b = temp;
+}
+int partition(Student arr[], int low, int high) {
+    int pivot = arr[high].marks;
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j].marks > pivot) {
+            i++;
+            swap(arr[i], arr[j]);
         }
-        for (int i = first_one; i <= last_one; i++) {
-            if (s[i] == '0') {
-                count++;
-            }
-        }
-        cout << count << endl;
     }
+    swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+void quickSort(Student arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+void printTopToppers(Student arr[], int n) {
+    int count = min(10, n);
+    cout << "Top " << count << " Toppers:\n";
+    for (int i = 0; i < count; i++) {
+        cout << "Name: " << arr[i].name << ", Marks: " << arr[i].marks << endl;
+    }
+}
+int main() {
+    int n;
+    cout << "Enter the number of students: ";
+    cin >> n;
+    Student students[n];
+    for (int i = 0; i < n; i++) {
+        cout << "Enter name and marks of student " << i + 1 << ": ";
+        cin.ignore();
+        getline(cin, students[i].name);
+        cin >> students[i].marks;
+    }
+    quickSort(students, 0, n - 1);
+    printTopToppers(students, n);
     return 0;
 }
+
