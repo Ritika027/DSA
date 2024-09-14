@@ -1,0 +1,119 @@
+#include <iostream>
+#include <stack>
+#include <string>
+#include <cctype>
+#include <cmath>  
+using namespace std;
+
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
+}
+
+int precedence(char c) {
+    if (c == '^')
+        return 3;
+    else if (c == '*' || c == '/')
+        return 2;
+    else if (c == '+' || c == '-')
+        return 1;
+    else
+        return -1;
+}
+
+int applyOperation(int a, int b, char op) {
+    switch (op) {
+    case '+': return a + b;
+    case '-': return a - b;
+    case '*': return a * b;
+    case '/': 
+        if (b == 0) {
+            cout << "Error: Division by zero!" << endl;
+            exit(1);
+        }
+        return a / b;
+    case '^': return pow(a, b);
+    default: return 0;
+    }
+}
+
+string infixToPostfix(string infix) {
+    stack<char> st;
+    string postfix;
+    for (int i = 0; i < infix.length(); i++) {
+        char c = infix[i];
+        if (isdigit(c)) {
+            while (i < infix.length() && isdigit(infix[i])) {
+                postfix += infix[i];
+                i++;
+            }
+            postfix += ' ';  
+            i--; 
+        }
+        else if (c == '(') {
+            st.push(c);
+        }
+        else if (c == ')') {
+            while (!st.empty() && st.top() != '(') {
+                postfix += st.top();
+                postfix += ' ';
+                st.pop();
+            }
+            if (!st.empty()) {
+                st.pop();
+            }
+        }
+        else if (isOperator(c)) {
+            while (!st.empty() && precedence(st.top()) >= precedence(c)) {
+                postfix += st.top();
+                postfix += ' ';
+                st.pop();
+            }
+            st.push(c);
+        }
+    }
+    while (!st.empty()) {
+        postfix += st.top();
+        postfix += ' ';
+        st.pop();
+    }
+
+    return postfix;
+}
+
+int evaluatePostfix(string postfix) {
+    stack<int> st;
+    int i = 0;
+    while (i < postfix.length()) {
+        if (isdigit(postfix[i])) {
+            int num = 0;
+            // Handle multi-digit numbers
+            while (i < postfix.length() && isdigit(postfix[i])) {
+                num = num * 10 + (postfix[i] - '0');
+                i++;
+            }
+            st.push(num);
+        }
+        else if (isOperator(postfix[i])) {
+            int val2 = st.top(); st.pop();
+            int val1 = st.top(); st.pop();
+            int result = applyOperation(val1, val2, postfix[i]);
+            st.push(result);
+        }
+        i++;
+    }
+    return st.top();
+}
+
+int main() {
+    string infix;
+    cout << "Enter infix expression: ";
+    getline(cin, infix);
+
+    string postfix = infixToPostfix(infix);
+    cout << "Postfix expression: " << postfix << endl;
+
+    int result = evaluatePostfix(postfix);
+    cout << "Result of the postfix evaluation: " << result << endl;
+
+    return 0;
+}
